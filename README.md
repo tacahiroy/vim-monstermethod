@@ -39,5 +39,3 @@ LICENSE
 -------
 
 Copyright (c) 2015, Takahiro Yoshihara. Distributed under the Modified BSD License.
-
-// [1]: http://i.imgur.com/PvIvax0.png
