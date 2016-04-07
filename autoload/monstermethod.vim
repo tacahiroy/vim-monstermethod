@@ -2,7 +2,7 @@
 " Description:
 " Author: Takahiro Yoshihara <tacahiroy@gmail.com>
 " License: Modified BSD License
-" Copyright (c) 2015, Takahiro Yoshihara
+" Copyright (c) 2015-2016, Takahiro Yoshihara
 
 if get(g:, 'loaded_monstermethod', 0)
   finish
@@ -28,10 +28,24 @@ function! s:format(lnum, line)
   if s:show_lnum
     let v .= a:lnum . ':'
   endif
-  return v . a:line
+  return v . substitute(a:line, '^\s\s*', '', '')
+endfunction
+
+function! monstermethod#enable()
+  let s:is_enabled = 1
+endfunction
+
+function! monstermethod#disable()
+  let s:is_enabled = 0
+endfunction
+
+function! monstermethod#toggle()
+  let s:is_enabled = !s:is_enabled
 endfunction
 
 function! monstermethod#search()
+  if !s:is_enabled | return '' | endif
+
   let bn = bufnr('%')
   let pos = getpos('.')
 
@@ -58,7 +72,11 @@ function! monstermethod#search()
     call setpos('.', pos)
   endtry
 
-  let line = substitute(line, '^[\t ]\+', '', '')
+  if s:name_only
+    " FIXME: super ad hoc lol
+    let line = substitute(line, '\(function\|func\|def\)!\?[\t ]*', '', '')
+    let line = substitute(line, '([^(]*)\s*{\?', '', '')
+  endif
 
   if lnum > 0
     return s:format(lnum, line)
@@ -74,10 +92,9 @@ if !s:has_ctrlp_funky()
 endif
 
 " * OPTIONS
-let s:show_lnum   = get(g:, 'monstermethod_show_line_number', 1)
-let s:remove_type = get(g:, 'monstermethod_remove_type_name', 0)
-" remove alike in args
-let s:remove_args = get(g:, 'monstermethod_remove_args', 0)
+let s:show_lnum = get(g:, 'monstermethod_show_line_number', 1)
+let s:name_only = get(g:, 'monstermethod_name_only', 1)
+let s:is_enabled = 1
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
